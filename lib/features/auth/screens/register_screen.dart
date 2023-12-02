@@ -1,0 +1,136 @@
+import 'package:amazon/constants/global_variables.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:amazon/features/auth/screens/login_screen.dart';
+import 'package:amazon/features/home/home.dart';
+
+class RegisterScreen extends StatefulWidget {
+  static const routeName = '/register';
+
+  const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
+  final _emailFieldKey = GlobalKey<FormBuilderFieldState>();
+  final _passwordFieldKey = GlobalKey<FormBuilderFieldState>();
+  final _confirmPasswordFieldKey = GlobalKey<FormBuilderFieldState>();
+
+  void _handleRegister(String email, String password) {
+    print('Email: $email, Password: $password');
+  }
+
+  void handleRegister() {
+    if (_formKey.currentState!.saveAndValidate()) {
+      final Map<String, dynamic> formData = _formKey.currentState!.value;
+      String email = formData['email'];
+      String password = formData['password'];
+
+      _handleRegister(email, password);
+      Navigator.pushNamed(context, HomePage.routeName);
+    } else {
+      print('Form is invalid');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Center(child: Text('Register')),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: FormBuilder(
+          key: _formKey,
+          autovalidateMode: AutovalidateMode.always,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FormBuilderTextField(
+                  key: _emailFieldKey,
+                  name: '_emailFieldKey',
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return GlobalVariables.requiredFieldText;
+                    } else if (!value.contains('@')) {
+                      return GlobalVariables.invalidEmailText;
+                    }
+                    return null;
+                  }),
+              const SizedBox(height: 24),
+              FormBuilderTextField(
+                name: '_passwordFieldKey',
+                key: _passwordFieldKey,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return GlobalVariables.requiredFieldText;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+              FormBuilderTextField(
+                name: '_confirmPasswordFieldKey',
+                key: _confirmPasswordFieldKey,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm Password',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return GlobalVariables.requiredFieldText;
+                  } else if (value != _passwordFieldKey.currentState!.value) {
+                    return GlobalVariables.passwordMatchText;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: handleRegister,
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  ),
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                ),
+                child: const Text('Create Account'),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Already have an account?"),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, LoginScreen.routeName);
+                    },
+                    child: const Text('Login'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
